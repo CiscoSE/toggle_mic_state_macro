@@ -35,6 +35,9 @@ import xapi from 'xapi';
 // set the ID of the microphone to toggle below
 const MicId = '1'
 
+const button_color_red = '#D43B52'
+const button_color_green = '#1D805F'
+
 async function init() {
     console.log({ Message: `Intializing Macro [${_main_macro_name()}...]` })
     await buildUI()
@@ -83,11 +86,24 @@ async function ToggleMic() {
     console.log({ Message: `Toggle Mic ${MicId}` })
     const current_value = await xapi.Config.Audio.Input.Microphone[1].Mode.get()
     console.log({ Message: `Current Mic ${MicId} current value: ${current_value}` })
+
+
     let toggle_value = ''
+    let tog_color = ''
     if (current_value == 'On') { toggle_value = 'Off' } else { toggle_value = 'On' };
+
+    if (current_value == 'On') {
+        toggle_value = 'Off';
+        tog_color = button_color_red;
+    }
+    else {
+        toggle_value = 'On';
+        tog_color = button_color_green;
+    };
+
     console.log({ Message: `Setting Mic ${MicId} to : ${toggle_value}` })
     await xapi.Config.Audio.Input.Microphone[1].Mode.set(toggle_value);
-    await xapi.Command.UserInterface.Extensions.Panel.Update({ PanelId: 'toggle_mic_state', Name: `Mic${MicId} turn ${current_value}` });
+    await xapi.Command.UserInterface.Extensions.Panel.Update({ PanelId: 'toggle_mic_state', Name: `Mic${MicId} turn ${current_value}`, Color: tog_color });
 
 }
 
@@ -111,7 +127,17 @@ async function buildUI() {
     const current_value = await xapi.Config.Audio.Input.Microphone[1].Mode.get()
     console.log({ Message: `Current Mic ${MicId} current value: ${current_value}` })
     let tog_state = ''
-    if (current_value == 'On') { tog_state = 'Off' } else { tog_state = 'On' };
+    let tog_color = ''
+    if (current_value == 'On') {
+        tog_state = 'Off';
+        tog_color = button_color_green;
+    }
+    else {
+        tog_state = 'On';
+        tog_color = button_color_red;
+    };
+
+
 
 
     //build  action buttons
@@ -119,12 +145,12 @@ async function buildUI() {
     actionButton_xml = `<Extensions>
         <Version>1.10</Version>
         <Panel>
-          <Order>10</Order>
+          <Order>1</Order>
           <PanelId>$toggle_mic_state</PanelId>
           <Origin>local</Origin>
           <Location>HomeScreenAndCallControls</Location>
           <Icon>Microphone</Icon>
-          <Color>#008094</Color>
+          <Color>${tog_color}</Color> 
           <Name>Mic${MicId} turn ${tog_state}</Name>
           <ActivityType>Custom</ActivityType>
         </Panel>
